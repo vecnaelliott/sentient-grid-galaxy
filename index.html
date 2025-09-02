@@ -1,96 +1,570 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script defer src="/_vercel/insights/script.js"></script>
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/@exampledev/new.css@1.1.2/new.min.css"
-    />
-    <title>Vercel HTML Starter</title>
-    <meta
-      name="description"
-      content="High-performance HTML based website template."
-    />
-  </head>
-  <body>
-    <h1>Vercel HTML Starter</h1>
-    <p>
-      This template is a simple, but powerful single
-      <code>index.html</code> file deployed to
-      <a href="https://vercel.com">Vercel</a>. When your site is deployed, all
-      static assets (like HTML, JavaScript, CSS, images, and more) are deployed
-      globally to every
-      <a href="https://vercel.com/docs/concepts/edge-network/overview"
-        >Vercel Edge Network</a
-      >
-      region.
-    </p>
-    <h2>Simple, privacy-friendly analytics</h2>
-    <p>
-      Want to understand your visitor traffic? Vercel Analytics gives you
-      first-party, privacy-friendly traffic analytics for your HTML site. This
-      template is already configured using the following script:
-    </p>
-    <pre><code>&lt;script defer src="/_vercel/insights/script.js"&gt;&lt;/script&gt;</code></pre>
-    <p>
-      Learn more about
-      <a href="https://vercel.com/analytics">Vercel Analytics</a>.
-    </p>
-    <h2>Integrated with git</h2>
-    <p>
-      Deploying updates to your site is as simple as
-      <code>git push</code> thanks to Vercel's advanced
-      <a href="https://vercel.com/docs/concepts/git">Git Integration</a>.
-      Support for GitHub, GitLab, Bitbucket is zero-configuration, and with the
-      flexible Vercel CLI and API, you can integrate with any tool possible.
-    </p>
-    <p>
-      Learn more about
-      <a href="https://vercel.com/docs/concepts/git">Git Integration</a>.
-    </p>
-    <h2>Fast <code>gzip</code> compression</h2>
-    <p>
-      To help ensure the smallest possible file sizes for your static assets,
-      the Vercel Edge Network compresses files by default using
-      <code>gzip</code>. You can also optionally use
-      <code>brotli</code> compressesion if you prefer.
-    </p>
-    <p>
-      Learn more about
-      <a href="https://vercel.com/docs/concepts/edge-network/compression"
-        >compression</a
-      >.
-    </p>
-    <h2>Advanced routing configuration</h2>
-    <p>
-      Vercel gives you a variety of ways to configure the routing of your
-      website. For example, adding redirects, rewrites, or headers to your page.
-      While you can use <code>vercel.json</code> to define these through JSON,
-      you can also express your routing configuration as code using
-      <a href="https://vercel.com/docs/concepts/functions/edge-middleware"
-        >Vercel Edge Middleware</a
-      >.
-    </p>
-    <p>
-      Middleware runs before the
-      <a href="https://vercel.com/docs/concepts/edge-network/caching"
-        >Vercel Edge Network Cache</a
-      >, so you can configure routing exactly as your application needs. For
-      example, this template uses <code>middleware.js</code> defined in the root
-      of the repository to add additional security headers to the site:
-    </p>
-    <pre><code>referrer-policy: origin-when-cross-origin
-strict-transport-security: max-age=31536000; includeSubDomains; preload
-x-content-type-options: nosniff
-x-dns-prefetch-control: on
-x-frame-options: DENY</code></pre>
-    <p>
-      Learn more about
-      <a href="https://vercel.com/docs/concepts/functions/edge-middleware"
-        >Vercel Edge Middleware</a
-      >.
-    </p>
-  </body>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>GRID GALAXY — Interactive 2D</title>
+<style>
+  :root{
+    --grad: linear-gradient(90deg,#ff2d55 0%,#b14cff 40%,#007aff 100%);
+    --glowA: rgba(255,45,85,0.55);
+    --glowB: rgba(0,122,255,0.45);
+    --panel: rgba(20,20,26,0.9);
+    --line: rgba(255,255,255,0.12);
+  }
+  /* Sayfa iskeleti */
+  html,body{height:100%;margin:0;background:#000;color:#fff;overflow:hidden;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial}
+  #stage{position:fixed;inset:0}
+  canvas{display:block;width:100%;height:100%;cursor:grab}
+  canvas:active{cursor:grabbing}
+
+  /* Üst başlık */
+  .top-title{
+    position:fixed;left:50%;top:10px;transform:translateX(-50%);
+    font-weight:800;letter-spacing:.3em;text-transform:uppercase;
+    font-size:clamp(16px,2vw,24px);
+    color:#e6e6e6;pointer-events:none;user-select:none;z-index:15
+  }
+
+  /* Sağ üst "Leave Message" */
+  .top-right{
+    position:fixed;right:16px;top:10px;display:flex;gap:10px;z-index:15
+  }
+
+  /* Sol üst profil kartı */
+  .profile-card{
+    position:fixed;left:16px;top:16px;display:none;align-items:center;gap:10px;
+    padding:10px 12px;border:1px solid var(--line);border-radius:14px;
+    background:linear-gradient(180deg, rgba(20,20,26,.95),rgba(8,8,12,.85));
+    box-shadow:0 0 18px var(--glowA),0 0 22px var(--glowB),inset 0 0 0 1px rgba(255,255,255,.06);
+    z-index:15
+  }
+  .profile-card img{width:36px;height:36px;border-radius:999px;display:block}
+  .profile-card .uname{font-weight:700;opacity:.95}
+
+  /* Alt orta Export */
+  .bottom-center{
+    position:fixed;left:50%;bottom:14px;transform:translateX(-50%);z-index:15
+  }
+
+  /* Alt sağ imza (linklendi) */
+  .devmark{
+    position:fixed;right:14px;bottom:12px;font-size:12px;opacity:.9;user-select:none;z-index:10;
+    text-decoration:none;color:#fff;
+  }
+  .grad-text{
+    background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent
+  }
+  .neon-text{
+    text-shadow:0 0 10px var(--glowA),0 0 18px var(--glowB),0 0 2px rgba(255,255,255,.6)
+  }
+
+  /* Butonlar */
+  .btn{
+    -webkit-tap-highlight-color:transparent;
+    border-radius:14px;padding:10px 14px;font-weight:700;border:1px solid var(--line);
+    background:#0b0b0f;color:#fff;letter-spacing:.02em;
+    transition:box-shadow .2s,transform .15s,background .2s,border-color .2s,opacity .2s;
+  }
+  .btn:hover{transform:translateY(-1px)}
+  .btn.neon{
+    background:var(--grad);border-color:transparent;
+    box-shadow:0 0 0 rgba(0,0,0,0);
+  }
+  .btn.neon:hover{
+    box-shadow:0 0 24px var(--glowA),0 0 30px var(--glowB);
+  }
+  .btn.faint{
+    background:transparent;color:#fff;opacity:.55;border-color:rgba(255,255,255,.25);
+    box-shadow:0 0 10px rgba(255,255,255,.05);
+  }
+  .btn.faint:hover{
+    opacity:1;background:var(--grad);border-color:transparent;
+    box-shadow:0 0 24px var(--glowA),0 0 30px var(--glowB);
+  }
+
+  /* Modallar */
+  .overlay{
+    position:fixed;inset:0;background:rgba(0,0,0,.55);
+    backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:30
+  }
+  .modal{
+    width:min(92vw,520px);background:var(--panel);border:1px solid var(--line);
+    border-radius:18px;box-shadow:0 0 24px var(--glowA),0 0 28px var(--glowB),inset 0 0 0 1px rgba(255,255,255,.04);
+    padding:18px 18px 16px;position:relative;
+    box-sizing:border-box; /* input taşmasını engelle */
+  }
+  .modal h2{
+    margin:0 0 12px 0;font-weight:900;font-size:clamp(18px,2.2vw,26px);
+    background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 0 16px var(--glowA),0 0 20px var(--glowB)
+  }
+  .modal .sub{
+    margin:4px 0 8px 0;font-size:12px;color:#d6d6d6;opacity:.9
+  }
+  .modal .x{
+    position:absolute;right:10px;top:10px;width:34px;height:34px;border-radius:10px;
+    display:grid;place-items:center;border:1px solid var(--line);background:#08080c99;cursor:pointer
+  }
+  .modal .x:hover{box-shadow:0 0 20px var(--glowB);background:#0b0b13}
+
+  .input{
+    width:100%;border-radius:12px;border:1px solid rgba(255,255,255,.22);
+    background:#0c0c12;color:#fff;padding:12px 14px;font-size:14px;outline:none;
+    box-sizing:border-box; /* padding genişliği aşmasın */
+  }
+  .input.sm{ padding:9px 12px; font-size:13px; }
+  /* POP-UP İÇİNDE ve KÜÇÜK: */
+  .modal .input{ width:min(92%,420px); display:block; margin:0 auto; }
+  .modal .input.sm{ width:min(92%,360px); }
+
+  .input:focus{border-color:#5aa2ff;box-shadow:0 0 14px rgba(90,162,255,.35)}
+
+  .row{display:flex;gap:10px;align-items:center;justify-content:flex-end;margin-top:14px}
+
+  /* Export içi küçük canvas */
+  #exportCanvas{width:360px;height:360px;border-radius:16px;border:1px solid var(--line);display:block;margin:8px auto 0 auto;background:#000}
+
+  /* Yardım ipucu */
+  .hint{position:fixed;left:16px;top:48px;font-size:12px;color:#cfcfcf;opacity:.8;user-select:none;z-index:10}
+</style>
+</head>
+<body>
+  <!-- Sahne -->
+  <div id="stage"><canvas id="galaxy"></canvas></div>
+
+  <!-- Üst başlık -->
+  <div class="top-title">GRID GALAXY</div>
+
+  <!-- Sol üst profil kartı -->
+  <div id="profileCard" class="profile-card">
+    <img id="avatarSmall" alt="avatar"/>
+    <div class="uname" id="uname">@user</div>
+  </div>
+
+  <!-- Sağ üst buton -->
+  <div class="top-right">
+    <button id="btnMessage" class="btn neon" style="display:none">Leave Message</button>
+  </div>
+
+  <!-- Alt orta Export -->
+  <div class="bottom-center">
+    <button id="btnExport" class="btn faint" style="display:none">Export GRID</button>
+  </div>
+
+  <!-- Alt sağ imza (link eklendi) -->
+  <a class="devmark" href="https://x.com/cotantanax" target="_blank" rel="noopener">
+    Developed by <strong class="grad-text neon-text">Elliottyu</strong>
+  </a>
+
+  <!-- Giriş Modal (Kapatma X YOK) -->
+  <div id="entryOverlay" class="overlay" style="display:flex">
+    <div class="modal" style="text-align:center">
+      <h2 class="neon-text" style="margin-top:6px">Welcome to the GRID</h2>
+      <div style="font-size:13px;opacity:.9;margin-bottom:6px">Your X Username</div>
+      <input id="inpUser" class="input sm" placeholder="e.g. elliottyu" autocomplete="off"/>
+      <div class="row" style="justify-content:center;margin-top:14px">
+        <button id="btnStart" class="btn neon">Start</button>
+      </div>
+    </div>
+  </div>
+
+ <!-- Leave Message Modal -->
+<div id="msgOverlay" class="overlay">
+  <div class="modal">
+    <div class="x" id="msgClose" title="Close">✕</div>
+
+    <h2 style="text-align:center; width:100%;">Your Grid Message</h2>
+    <div class="sub" style="text-align:center; width:100%;">leave a message to print on the GRID galaxy</div>
+
+    <input id="inpMsg" class="input sm" placeholder="gSenti" maxlength="25"/>
+    <div class="row">
+      <button id="btnSend" class="btn neon">Send</button>
+    </div>
+  </div>
+</div>
+
+  <!-- Profil Modal -->
+  <div id="profOverlay" class="overlay">
+    <div class="modal" style="text-align:center">
+      <div class="x" id="profClose" title="Close">✕</div>
+      <h2>GRID Profile</h2>
+      <img id="profAvatar" alt="avatar" style="width:88px;height:88px;border-radius:999px;display:block;margin:4px auto 8px auto;border:1px solid var(--line);box-shadow:0 0 24px var(--glowA),0 0 20px var(--glowB)"/>
+      <div id="profMsg" style="font-size:14px;opacity:.95;margin:6px 0 12px 0"></div>
+      <button id="btnToggle" class="btn neon">Activate mini-grid</button>
+    </div>
+  </div>
+
+  <!-- Export Modal -->
+  <div id="expOverlay" class="overlay">
+    <div class="modal" style="text-align:center">
+      <div class="x" id="expClose" title="Close">✕</div>
+      <h2 id="expTitle">@user's GRID Galaxy</h2>
+      <canvas id="exportCanvas" width="720" height="720"></canvas>
+      <div id="expMsg" class="sub" style="margin:10px 0 2px 0; font-size:14px; opacity:.95;"></div>
+      <div class="row" style="justify-content:center">
+        <button id="btnBack" class="btn neon">Back to the GRID</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+/* ——— Mevcut JS’i değiştirmedim; tamamı aynı ——— */
+(() => {
+  // ---------- Canvas / Galaxy ----------
+  const canvas = document.getElementById('galaxy');
+  const ctx = canvas.getContext('2d', { alpha: true, desynchronized: true });
+  let DPR = 1;
+
+  function resize() {
+    DPR = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
+    canvas.width = Math.floor(innerWidth * DPR);
+    canvas.height = Math.floor(innerHeight * DPR);
+    canvas.style.width = innerWidth + 'px';
+    canvas.style.height = innerHeight + 'px';
+    layout();
+  }
+  window.addEventListener('resize', resize);
+
+  // Kamera
+  const camera = { x: innerWidth/2, y: innerHeight/2, s: 1 };
+  function applyTransform(){ ctx.setTransform(camera.s * DPR,0,0,camera.s * DPR,camera.x * DPR,camera.y * DPR); }
+  function screenToWorld(sx,sy){ return {x:(sx - camera.x)/camera.s, y:(sy - camera.y)/camera.s}; }
+
+  // Model
+  const palette = ["#ffd166","#f8a14a","#ef476f","#ff8ce5","#cdb4ff","#9bf6ff"];
+  let rings = [];
+  let outerR = 420, innerR = 120;
+
+  function layout(){
+    const w = canvas.width / DPR, h = canvas.height / DPR;
+    outerR = Math.min(w,h) * 0.42;
+    innerR = Math.min(w,h) * 0.18;
+    camera.x = w/2; camera.y = h/2;
+
+    const countRings = 7;
+    rings = [];
+    const step = (outerR - innerR) / (countRings - 1);
+    for (let i=0;i<countRings;i++){
+      const r = innerR + step * i;
+      const count = Math.round(18 + i*7 + (i*i)*0.6);
+      const size  = 1.6 + i*0.6;
+      const speed = (i%2?-1:1)*(0.007 - i*0.0006);
+      rings.push({r,count,size,speed,baseAngle:Math.random()*Math.PI*2});
+    }
+    positionUserNode(); // kullanıcı düğümü konumu
+  }
+
+  // Etkileşim
+  let dragging=false,lastX=0,lastY=0,isClick=false,downAt=0;
+  canvas.addEventListener('pointerdown',e=>{
+    dragging=true; lastX=e.clientX; lastY=e.clientY; isClick=true; downAt=performance.now(); canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener('pointermove',e=>{
+    if(!dragging) return;
+    const dx=e.clientX-lastX, dy=e.clientY-lastY;
+    camera.x += dx; camera.y += dy;
+    if(Math.hypot(dx,dy)>5) isClick=false;
+    lastX=e.clientX; lastY=e.clientY;
+  });
+  canvas.addEventListener('pointerup',e=>{
+    dragging=false;
+    if(isClick && performance.now()-downAt<250) checkUserNodeHit(e.clientX,e.clientY);
+  });
+  canvas.addEventListener('pointercancel',()=>dragging=false);
+  canvas.addEventListener('wheel',e=>{
+    e.preventDefault();
+    const {clientX:sx,clientY:sy}=e;
+    const world = screenToWorld(sx,sy);
+    const factor = Math.pow(1.001,-e.deltaY);
+    const next = Math.max(0.25, Math.min(8, camera.s*factor));
+    camera.s = next;
+    camera.x = sx - world.x*camera.s;
+    camera.y = sy - world.y*camera.s;
+  },{passive:false});
+
+  function drawBackgroundGlow(){
+    applyTransform();
+    const g = ctx.createRadialGradient(0,0,innerR*0.15,0,0,outerR*1.05);
+    g.addColorStop(0,"rgba(255,255,255,.35)");
+    g.addColorStop(0.25,"rgba(200,200,200,.10)");
+    g.addColorStop(1,"rgba(0,0,0,0)");
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(0,0,outerR*1.1,0,Math.PI*2); ctx.fill();
+  }
+  function drawLinks(time){
+    applyTransform();
+    ctx.save();
+    ctx.lineWidth = Math.max(0.7/camera.s, 0.25/camera.s);
+    ctx.strokeStyle = "rgba(200,200,200,0.18)";
+    for(let i=0;i<rings.length;i++){
+      const A=rings[i], B=rings[(i+1)%rings.length];
+      const aStep=(Math.PI*2)/A.count, bStep=(Math.PI*2)/B.count;
+      const aRot=A.baseAngle + A.speed*time, bRot=B.baseAngle + B.speed*time;
+      for(let j=0;j<A.count;j++){
+        const a=aRot + j*aStep;
+        const ax=Math.cos(a)*A.r, ay=Math.sin(a)*A.r;
+        ctx.beginPath(); ctx.moveTo(ax,ay);
+        const a2=aRot + ((j+3)%A.count)*aStep;
+        const ax2=Math.cos(a2)*A.r, ay2=Math.sin(a2)*A.r;
+        const qx=(ax+ax2)*0.5*0.96, qy=(ay+ay2)*0.5*0.96;
+        ctx.quadraticCurveTo(qx,qy,ax2,ay2); ctx.stroke();
+        const k=Math.round(j*(B.count/A.count));
+        const b=bRot + k*bStep;
+        const bx=Math.cos(b)*B.r, by=Math.sin(b)*B.r;
+        ctx.beginPath(); ctx.moveTo(ax,ay); ctx.quadraticCurveTo(0,0,bx,by); ctx.stroke();
+      }
+    }
+    ctx.restore();
+  }
+  function drawNodes(time){
+    applyTransform();
+    ctx.save(); ctx.globalCompositeOperation='lighter';
+    for(let i=0;i<rings.length;i++){
+      const R=rings[i], step=(Math.PI*2)/R.count, rot=R.baseAngle + R.speed*time;
+      for(let j=0;j<R.count;j++){
+        const a=rot + j*step, x=Math.cos(a)*R.r, y=Math.sin(a)*R.r;
+        const screenSize = R.size * camera.s; if(screenSize<0.35) continue;
+        const color = palette[(j+i*3)%palette.length];
+        ctx.save(); ctx.shadowColor=color; ctx.shadowBlur=Math.max(20/camera.s,6/camera.s);
+        ctx.fillStyle=color; ctx.beginPath(); ctx.arc(x,y,R.size,0,Math.PI*2); ctx.fill(); ctx.restore();
+      }
+    }
+    ctx.restore();
+  }
+  function drawCore(){
+    applyTransform();
+    const coreR = innerR*0.58;
+    const grad = ctx.createRadialGradient(0,0,coreR*0.25,0,0,coreR);
+    grad.addColorStop(0,"rgba(245,245,245,.95)");
+    grad.addColorStop(0.55,"rgba(120,120,120,.35)");
+    grad.addColorStop(1,"rgba(0,0,0,0)");
+    ctx.save(); ctx.beginPath(); ctx.fillStyle=grad;
+    ctx.shadowColor="rgba(255,255,255,.6)"; ctx.shadowBlur=Math.max(40/camera.s,12/camera.s);
+    ctx.arc(0,0,coreR,0,Math.PI*2); ctx.fill(); ctx.restore();
+    ctx.save(); ctx.fillStyle="#fff"; ctx.textAlign="center"; ctx.textBaseline="middle";
+    ctx.font=`${Math.max(14, coreR*0.42)}px system-ui, -apple-system, Segoe UI, Roboto, Arial`;
+    ctx.shadowColor="rgba(255,255,255,.75)"; ctx.shadowBlur=Math.max(12/camera.s,4/camera.s);
+    ctx.fillText("GRID",0,0); ctx.restore();
+  }
+
+  // ---------- Kullanıcı avatarı / düğümü ----------
+  let username='', messageText='';
+  let avatarImg=null;
+  const userNode = { enabled:false, active:false, x:0, y:0, R:26, ringR1:0, ringR2:0 };
+
+  function positionUserNode(){
+    // Galaksiden daha uzakta
+    const offset = outerR * 1.8;
+    userNode.x = offset; userNode.y = 0;
+    userNode.R = Math.max(22, innerR*0.32);
+    userNode.ringR1 = userNode.R + Math.max(16, userNode.R*0.55);
+    userNode.ringR2 = userNode.R + Math.max(36, userNode.R*1.0);
+  }
+  function drawUserNode(){
+    if(!userNode.enabled) return;
+    applyTransform();
+    const x=userNode.x, y=userNode.y, R=userNode.R;
+    // Glow çemberi
+    ctx.save();
+    ctx.shadowColor="rgba(255,255,255,.9)";
+    ctx.shadowBlur=Math.max(32/camera.s,12/camera.s);
+    ctx.beginPath(); ctx.arc(x,y,R+1.2,0,Math.PI*2); ctx.strokeStyle="rgba(255,255,255,.35)";
+    ctx.lineWidth=Math.max(2/camera.s,1/camera.s); ctx.stroke(); ctx.restore();
+
+    // Avatar
+    if(avatarImg && avatarImg.complete){
+      ctx.save(); ctx.beginPath(); ctx.arc(x,y,R,0,Math.PI*2); ctx.clip();
+      ctx.drawImage(avatarImg, x-R, y-R, 2*R, 2*R); ctx.restore();
+    }else{
+      const g=ctx.createRadialGradient(x,y,R*0.2,x,y,R);
+      g.addColorStop(0,"#fff"); g.addColorStop(1,"#777");
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,R,0,Math.PI*2); ctx.fill();
+    }
+
+    // Mini grid halkaları (aktifse)
+    if(userNode.active){
+      const small = Math.max(2.4, R*0.11);
+      ctx.save(); ctx.globalCompositeOperation='lighter';
+      for(const [ringR,count,phase] of [[userNode.ringR1,22,0.1],[userNode.ringR2,30,0.35]]){
+        for(let i=0;i<count;i++){
+          const a = (i/count)*Math.PI*2 + phase;
+          const nx = x + Math.cos(a)*ringR;
+          const ny = y + Math.sin(a)*ringR;
+          const color = palette[i%palette.length];
+          ctx.save(); ctx.shadowColor=color; ctx.shadowBlur=Math.max(16/camera.s,6/camera.s);
+          ctx.fillStyle=color; ctx.beginPath(); ctx.arc(nx,ny,small,0,Math.PI*2); ctx.fill(); ctx.restore();
+        }
+      }
+      ctx.restore();
+    }
+  }
+  function checkUserNodeHit(sx,sy){
+    if(!userNode.enabled) return;
+    const p = screenToWorld(sx,sy);
+    if(Math.hypot(p.x-userNode.x, p.y-userNode.y) <= userNode.R*1.05){
+      openProfile();
+    }
+  }
+
+  // ---------- Döngü ----------
+  let start = performance.now();
+  function frame(now){
+    const t=(now-start)/1000;
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.fillStyle="#000"; ctx.fillRect(0,0,canvas.width,canvas.height);
+    drawBackgroundGlow();
+    drawLinks(t);
+    drawNodes(t);
+    drawCore();
+    drawUserNode();
+    requestAnimationFrame(frame);
+  }
+
+  // ---------- UI / Veri akışı ----------
+  const entryOverlay = document.getElementById('entryOverlay');
+  const inpUser = document.getElementById('inpUser');
+  const btnStart = document.getElementById('btnStart');
+  const profileCard = document.getElementById('profileCard');
+  const avatarSmall = document.getElementById('avatarSmall');
+  const uname = document.getElementById('uname');
+  const btnMessage = document.getElementById('btnMessage');
+  const btnExport = document.getElementById('btnExport');
+
+  const msgOverlay = document.getElementById('msgOverlay');
+  const msgClose = document.getElementById('msgClose');
+  const inpMsg = document.getElementById('inpMsg');
+  const btnSend = document.getElementById('btnSend');
+
+  const profOverlay = document.getElementById('profOverlay');
+  const profClose = document.getElementById('profClose');
+  const profAvatar = document.getElementById('profAvatar');
+  const profMsg = document.getElementById('profMsg');
+  const btnToggle = document.getElementById('btnToggle');
+
+  const expOverlay = document.getElementById('expOverlay');
+  const expClose = document.getElementById('expClose');
+  const expTitle = document.getElementById('expTitle');
+  const exportCanvas = document.getElementById('exportCanvas');
+  const expMsg = document.getElementById('expMsg');
+  const btnBack = document.getElementById('btnBack');
+
+  function getAvatarUrl(u){
+    // CORS açık servis: unavatar (X/Twitter)
+    return `https://unavatar.io/x/${encodeURIComponent(u)}`;
+  }
+  function loadAvatar(u){
+    return new Promise(resolve=>{
+      const img=new Image(); img.crossOrigin='anonymous';
+      img.src=getAvatarUrl(u);
+      img.onload=()=>resolve(img);
+      img.onerror=()=>{ // yedek (identicon)
+        const fall=new Image(); fall.crossOrigin='anonymous';
+        fall.src=`https://api.dicebear.com/7.x/identicon/png?size=256&seed=${encodeURIComponent(u)}`;
+        fall.onload=()=>resolve(fall);
+        fall.onerror=()=>resolve(null);
+      };
+    });
+  }
+
+  btnStart.addEventListener('click', async ()=>{
+    username = (inpUser.value || '').trim().replace(/^@/,'') || 'elliottyu';
+    // Avatarı yükle
+    avatarImg = await loadAvatar(username);
+    // UI güncelle
+    entryOverlay.style.display='none';
+    profileCard.style.display='flex';
+    btnMessage.style.display='inline-block';
+    btnExport.style.display='inline-block';
+    uname.textContent='@'+username;
+    if(avatarImg){
+      avatarSmall.src = avatarImg.src;
+      profAvatar.src = avatarImg.src;
+    }
+  });
+
+  // Leave Message aç/kapat
+  btnMessage.addEventListener('click', ()=>{ msgOverlay.style.display='flex'; inpMsg.focus(); });
+  msgClose.addEventListener('click', ()=>{ msgOverlay.style.display='none'; });
+
+  // Mesaj gönder: büyük daireyi oluştur
+  btnSend.addEventListener('click', ()=>{
+    const raw = (inpMsg.value || 'gSenti').trim();
+    messageText = raw.slice(0,25); // maksimum 25 karakter
+    userNode.enabled = true; userNode.active = false;
+    msgOverlay.style.display='none';
+  });
+
+  function openProfile(){
+    profOverlay.style.display='flex';
+    profMsg.textContent = messageText ? messageText : '(no message)';
+    if(avatarImg) profAvatar.src = avatarImg.src;
+    btnToggle.textContent = userNode.active ? 'Deactivate mini-grid' : 'Activate mini-grid';
+  }
+  profClose.addEventListener('click', ()=>{ profOverlay.style.display='none'; });
+  btnToggle.addEventListener('click', ()=>{
+    userNode.active = !userNode.active;
+    btnToggle.textContent = userNode.active ? 'Deactivate mini-grid' : 'Activate mini-grid';
+  });
+
+  // Export
+  btnExport.addEventListener('click', ()=>{
+    if(!username) username='user';
+    expTitle.textContent = '@'+username+"'s GRID Galaxy";
+    // küçük kompozisyon
+    drawPersonalGalaxy(exportCanvas, avatarImg);
+    // mesajı en alta ekle (varsa)
+    if(messageText && messageText.length){
+      expMsg.style.display='block';
+      expMsg.textContent = 'Message: ' + messageText;
+    }else{
+      expMsg.style.display='none';
+      expMsg.textContent = '';
+    }
+    expOverlay.style.display='flex';
+  });
+  expClose.addEventListener('click', ()=>{ expOverlay.style.display='none'; });
+  btnBack.addEventListener('click', ()=>{ expOverlay.style.display='none'; });
+
+  function drawPersonalGalaxy(cvs, avatar){
+    const c = cvs.getContext('2d'); const W=cvs.width, H=cvs.height;
+    c.setTransform(1,0,0,1,0,0); c.clearRect(0,0,W,H);
+    c.fillStyle='#000'; c.fillRect(0,0,W,H);
+
+    // Merkez avatar
+    const cx=W/2, cy=H/2, R=Math.min(W,H)*0.16;
+    // Halo
+    let g=c.createRadialGradient(cx,cy,R*0.2,cx,cy,R*1.4);
+    g.addColorStop(0,"rgba(255,255,255,.35)");
+    g.addColorStop(1,"rgba(0,0,0,0)");
+    c.fillStyle=g; c.beginPath(); c.arc(cx,cy,R*1.5,0,Math.PI*2); c.fill();
+
+    if(avatar && avatar.complete){
+      c.save(); c.beginPath(); c.arc(cx,cy,R,0,Math.PI*2); c.clip();
+      c.drawImage(avatar,cx-R,cy-R,2*R,2*R); c.restore();
+    }else{
+      c.fillStyle='#888'; c.beginPath(); c.arc(cx,cy,R,0,Math.PI*2); c.fill();
+    }
+    // Çerçeve
+    c.strokeStyle='rgba(255,255,255,.35)'; c.lineWidth=3; c.beginPath(); c.arc(cx,cy,R+1.5,0,Math.PI*2); c.stroke();
+
+    // İki halka
+    const ring1=R+48, ring2=R+92;
+    const drawRing=(rad,count,phase)=>{
+      for(let i=0;i<count;i++){
+        const a = (i/count)*Math.PI*2 + phase;
+        const x=cx+Math.cos(a)*rad, y=cy+Math.sin(a)*rad;
+        const col = palette[i%palette.length];
+        c.save(); c.shadowColor=col; c.shadowBlur=18; c.fillStyle=col;
+        c.beginPath(); c.arc(x,y,8,0,Math.PI*2); c.fill(); c.restore();
+      }
+    };
+    drawRing(ring1,24,0.1); drawRing(ring2,34,0.35);
+  }
+
+  // Başlat
+  resize(); positionUserNode(); requestAnimationFrame(frame);
+})();
+</script>
+</body>
 </html>
